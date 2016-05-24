@@ -20,7 +20,7 @@ L. Mones, N. Bernstein and G. Csanyi
 ## Get the code
 ***
 
-Just simply run the following script:
+Due to convenient code development the program package is divided into two parts ([prerequisites](https://github.com/molet/prerequisites) and [project_gp_general](https://github.com/molet/project_gp_general)). Both are available on GitHub. To get all components just simply run the following script:
 
 	./Pull_code
 
