@@ -1,0 +1,42 @@
+#!/bin/bash
+
+###############################################################################
+# conventional_1D_teach_val
+#
+# Teaching 1 dimensional value data using conventional GP
+#
+# Function: sin(x)+2.0*cos(x)*cos(x)
+###############################################################################
+
+# Program specifications
+gp_general=../../bin/gp_general
+export OMP_NUM_THREADS=8
+
+# Variable specifications
+ndim=1				# dimension
+range_min=(-3.14159265359)	# minimum values
+range_max=(3.14159265359)	# maximum values
+periodicity=(6.28318530718)	# periodicities
+predgrid=(48)			# grid points for prediction
+nsamples=2000                   # number of training set
+seed=3141592                    # random seed
+
+# GP specifications
+delta=1.0			# delta (function deviation)
+sigmaval=1.0			# sigma of values (deviation of values)
+theta=(2.0)			# theta value (length scale)
+
+# Create reference data
+awk -v "predgrid=${predgrid[0]}" -v "range_min=${range_min[0]}" -v "range_max=${range_max[0]}" \
+     'BEGIN{inc=(range_max-range_min)/predgrid}END{for(i=1; i<=predgrid; i++){x=range_min+(i-0.5)*inc;printf "%15.6f%15.6f\n", x, sin(x)+2.0*cos(x)*cos(x)}}' /dev/null > reference.txt
+
+# Create training data
+awk -v "nsamples=$nsamples" -v "seed=$seed" -v "range_min=${range_min[0]}" -v "range_max=${range_max[0]}" -v "sigma=$sigmaval" \
+     'function gaussian() {pi=atan2(0,-1); return sqrt(-2*log(rand()))*cos(pi*rand())}; BEGIN{srand(seed); range=range_max-range_min; for(i=1; i<=nsamples; i++){x=range*rand()+range_min; printf "%15.6f%15.6f\n", x, sin(x)+2.0*cos(x)*cos(x)+sigma*gaussian()}}' /dev/null > training.txt
+
+# Do GP!
+range=`for((i=0;i<$ndim;i++));do echo -n "${range_min[$i]} ${range_max[$i]} ";done`
+
+echo "$gp_general -InVal -OutVal -OutValDev -NDim $ndim -Delta $delta -SigmaVal $sigmaval -Theta ${theta[@]} -Periodicity ${periodicity[@]} -Range $range -PredGrid ${predgrid[@]} -Verbose -TrainFile training.txt -PredFile prediction.txt"
+
+$gp_general -InVal -OutVal -OutValDev -NDim $ndim -Delta $delta -SigmaVal $sigmaval -Theta ${theta[@]} -Periodicity ${periodicity[@]} -Range $range -PredGrid ${predgrid[@]} -Verbose -TrainFile training.txt -PredFile prediction.txt
