@@ -14,8 +14,6 @@ cd $OLDPWD
 }
 
 # ------------------------------------------------------------------------------
-# push program
-push_code ./ program_gp_general
 
 # push prerequisites
 push_code src/prerequisites prerequisites
