@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# ------------------------------------------------------------------------------
+function pull_code() {
+echo ""
+echo "# $2 -> $1"
+echo "# -------------------------------------------" 
+OLDPWD=$PWD
+mkdir -p $1 || exit 1
+cd $1 || exit 1
+if ! [ -d .git ]; then
+   git init
+   git remote add github https://github.com/molet/${2}.git
+fi 
+git pull github master
+cd $OLDPWD
+}
+
+# ------------------------------------------------------------------------------
+
+# pull prerequisites
+pull_code src/prerequisites prerequisites
+
+# pull projects
+pull_code src/projects/gp_general project_gp_general

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# ------------------------------------------------------------------------------
+function push_code() {
+echo ""
+echo "# $2 -> $1"
+echo "# -------------------------------------------" 
+OLDPWD=$PWD
+cd $1 || exit 1
+if [ -d .git ]; then
+   git push github master
+fi 
+cd $OLDPWD
+}
+
+# ------------------------------------------------------------------------------
+
+# push prerequisites
+push_code src/prerequisites prerequisites
+
+# push projects
+push_code src/projects/gp_general project_gp_general
